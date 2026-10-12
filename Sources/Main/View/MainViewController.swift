@@ -1,18 +1,8 @@
+import Observation
 import UIKit
 
-protocol MainPresenterProtocol {
-    func toggleCashFlowTapped()
-    func spendingTapped()
-    func viewDidLoad()
-}
-
-protocol MainViewControllerProtocol: AnyObject {
-    func showBalance(_ balance: Decimal)
-    func updateButtonAppearance(state: BankButton.BankButtonState)
-}
-
-final class MainViewController: UIViewController, MainViewControllerProtocol {
-    private let presenter: MainPresenterProtocol
+final class MainViewController: UIViewController {
+    private let viewModel: MainViewModel
 
     private lazy var currentBalanceLabel: UILabel = {
         let label = UILabel()
@@ -30,7 +20,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         button.contentHorizontalAlignment = .center
         button.addAction(
             UIAction { [weak self] _ in
-                self?.presenter.toggleCashFlowTapped()
+                self?.viewModel.toggleCashFlow()
             }, for: .touchUpInside
         )
         return button
@@ -44,7 +34,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         button.configuration = config
         button.addAction(
             UIAction { [weak self] _ in
-                self?.presenter.spendingTapped()
+                self?.viewModel.spendMoney()
             }, for: .touchUpInside
         )
         return button
@@ -59,8 +49,8 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         return stackView
     }()
 
-    init(presenter: MainPresenterProtocol) {
-        self.presenter = presenter
+    init(viewModel: MainViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -77,7 +67,7 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        presenter.viewDidLoad()
+        bindViewModel()
     }
 
     private func setupUI() {
@@ -98,11 +88,34 @@ final class MainViewController: UIViewController, MainViewControllerProtocol {
         ])
     }
 
-    func showBalance(_ balance: Decimal) {
-        currentBalanceLabel.text = balance.formatted(.currency(code: "RUB"))
+    // MARK: - Observation bridge
+
+    /// Мост @Observable → UIKit для iOS 17.
+    ///
+    /// `withObservationTracking` — ОДНОРАЗОВЫЙ трекинг: после срабатывания
+    /// onChange подписка умирает, поэтому метод перерегистрирует себя
+    /// рекурсивно изнутри колбэка. Так View подписывается заново на каждое
+    /// новое чтение свойств ViewModel.
+    ///
+    /// Важно: onChange может прилететь на background-потоке (сеть пишет
+    /// balance из фона) — это учебная часть кейса, хоп на main здесь
+    /// специально НЕ делается (см. README).
+    private func bindViewModel() {
+        withObservationTracking {
+            render(viewModel)
+        } onChange: { [weak self] in
+            // Свойство, прочитанное в render, изменилось. Перерегистрация
+            // синхронная: render выполнится в том потоке, на котором сработал
+            // onChange (в т.ч. на background) — учебный баг «UI не из main»
+            // сохраняется намеренно (см. README).
+            self?.bindViewModel()
+        }
     }
 
-    func updateButtonAppearance(state: BankButton.BankButtonState) {
+    private func render(_ viewModel: MainViewModel) {
+        // Все чтения свойств внутри этого метода попадают в трекинг.
+        currentBalanceLabel.text = viewModel.balance.formatted(.currency(code: "RUB"))
+        let state: BankButton.BankButtonState = viewModel.isCashFlowActive ? .start : .stop
         startCashFlowButton.cashState = state
         startCashFlowButton.setTitle(state.buttonTitle, for: .normal)
     }
