@@ -26,18 +26,5 @@ Packages
 xcuserdata/
 DerivedData/
 *.xcodeproj
-!project.yml
 *.xcscmblueprint
 *.xccheckout
-
-# Xcode Patch
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
-!*.xcodeproj/project.xcworkspace/
-!*.xcworkspace/contents.xcworkspacedata
-/*.gcno
-**/xcshareddata/WorkspaceSettings.xcsettings
-
-# Дополнительно для XcodeGen
-*.xcodeproj/
