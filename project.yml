@@ -5,7 +5,7 @@ targets:
   MultithreadingiOSCase:
     type: application
     platform: iOS
-    deploymentTarget: "17.0"
+    deploymentTarget: "18.0"
     sources:
       - path: Sources
       - path: Resources/Assets.xcassets
@@ -31,7 +31,7 @@ targets:
   MultithreadingiOSCaseTests:
     type: bundle.unit-test
     platform: iOS
-    deploymentTarget: "17.0"
+    deploymentTarget: "18.0"
     sources:
       - path: Tests
     dependencies:
