@@ -13,13 +13,13 @@ concurrency:
 jobs:
   build:
     name: Build (iOS Simulator)
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app
+        run: sudo xcode-select -s /Applications/Xcode_26.6.app
 
       - name: Install XcodeGen
         run: brew install xcodegen
