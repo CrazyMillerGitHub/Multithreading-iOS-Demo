@@ -12,14 +12,13 @@ final class BankButton: UIButton {
     }
 }
 
-// MARK: - Nested types
 extension BankButton {
     enum BankButtonState {
         case start
         case stop
 
         var buttonTitle: String {
-            return switch self {
+            switch self {
             case .stop:
                 "Включить поток"
             case .start:

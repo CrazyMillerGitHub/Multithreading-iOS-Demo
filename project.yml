@@ -1,0 +1,48 @@
+name: Multithreading-iOS-Case
+options:
+  bundleIdPrefix: com.dsgnmike.multithreading
+targets:
+  MultithreadingiOSCase:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: Sources
+      - path: Resources/Assets.xcassets
+      - path: Base/LaunchScreen.storyboard
+    dependencies:
+      - sdk: UIKit.framework
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleVersion: "1.0"
+        CFBundleShortVersionString: "1.0"
+        UILaunchStoryboardName: "LaunchScreen"
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: "Default Configuration"
+                UISceneDelegateClassName: "$(PRODUCT_MODULE_NAME).SceneDelegate"
+    settings:
+      TARGETED_DEVICE_FAMILY: 1
+      SWIFT_VERSION: 5.0
+
+  MultithreadingiOSCaseTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: Tests
+    dependencies:
+      - target: MultithreadingiOSCase
+      - sdk: XCTest.framework
+    info:
+      path: Tests/Info.plist
+      properties:
+        CFBundleVersion: "1.0"
+        CFBundleShortVersionString: "1.0"
+        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"  # Убрано .Tests
+        CFBundleName: "MultithreadingiOSCaseTests"
+    settings:
+      SWIFT_VERSION: 5.0
