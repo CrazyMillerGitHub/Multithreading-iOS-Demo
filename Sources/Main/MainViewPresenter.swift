@@ -1,41 +1,42 @@
 import Foundation
+import Observation
 
-final class MainPresenter: MainPresenterProtocol {
-    private weak var view: MainViewControllerProtocol?
-    private var repository = MainRepository()
-    private var isCashFlowActive = false
+@Observable
+final class MainViewModel {
+    private let repository = MainRepository()
 
-    func attach(_ view: MainViewControllerProtocol) {
-        self.view = view
-    }
+    /// Текущий баланс. Пишется и из main (трата), и из background-колбэка сети —
+    /// синхронизации НЕТ, это учебный race condition (см. README).
+    private(set) var balance: Decimal = 0
 
-    func viewDidLoad() {
-        view?.showBalance(repository.currentAmount)
-    }
+    /// Флаг активности денежного потока. Читается и пишется из разных потоков
+    /// без синхронизации — окно гонки при быстром off→on сохранено намеренно.
+    private(set) var isCashFlowActive = false
 
-    func toggleCashFlowTapped() {
+    func toggleCashFlow() {
         isCashFlowActive.toggle()
-        view?.updateButtonAppearance(state: isCashFlowActive ? .stop : .start)
 
         if isCashFlowActive {
             performCashFlow()
         }
     }
 
-    func spendingTapped() {
+    func spendMoney() {
         repository.currentAmount -= 100
-        view?.showBalance(repository.currentAmount)
+        balance = repository.currentAmount
     }
 
     private func performCashFlow() {
         NetworkingService.shared.makeCashFlow { [weak self] extra in
             guard let self else { return }
+            // Запись из background-очереди сети. Хоп на main НЕ добавлен:
+            // обновление UI из фона — часть учебного кейса (см. README).
             repository.currentAmount += extra
-            view?.showBalance(repository.currentAmount)
+            balance = repository.currentAmount
 
             if isCashFlowActive {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    self.performCashFlow()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                    self?.performCashFlow()
                 }
             }
         }
