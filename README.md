@@ -1,6 +1,6 @@
 # Изучение многопоточности в iOS
 
-![Swift](https://img.shields.io/badge/Swift-5.0-orange.svg) ![iOS](https://img.shields.io/badge/iOS-17.0+-blue.svg) ![Xcode](https://img.shields.io/badge/Xcode-27.0-green.svg)
+![Swift](https://img.shields.io/badge/Swift-5.0-orange.svg) ![iOS](https://img.shields.io/badge/iOS-18.0+-blue.svg) ![Xcode](https://img.shields.io/badge/Xcode-27.0-green.svg)
 
 ## О проекте
 
